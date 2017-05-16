@@ -1,0 +1,40 @@
+data1 = sc.textFile("file:///usr/local/data.csv").map(lambda line: line.split(",")).map(line: (line[0],line[1],line[2],line[3],line[4],line[5]))
+
+a = data1.map(lambda line: (line[0],line[3]))
+b = a.map(lambda line: (line[0],line[1].split("/")))
+c = b.filter(lambda x: x[1][0] == '')
+d = b.filter(lambda x: x[1][0] != '')
+e = d.map(lambda l: (l[0],(l[1][2]+"-"+l[1][1]+"-"+l[1][0]+"T00:00:00Z")))  
+f = e.union(c)
+g = f.map(lambda l: (l[0],l[1]))
+h = data1.map(lambda l: (l[0],(l[1],l[2],l[4],l[5])))
+i = h.join(g)
+j = i.map(lambda l: (l[0],l[1][0][0],l[1][0][1],l[1][0][2],l[1][0][3],l[1][1]))
+k = j.map(lambda l: (l[0],l[1],l[2],l[5],l[3],l[4]))
+
+pairRDD1 = data1.map(lambda line: (line[4],(line[0],line[1],line[2],line[3],line[5])))
+solePropCodes1 = sc.textFile("file:///usr/local/solePropCodes.csv").map(lambda line: line.split(",")).map(line: (line[0],line[1]))
+pairRDD2 = solePropCodes1.map(lambda line: (line[0],line[1]))
+join1 = pairRDD1.leftOuterJoin(pairRDD2)
+removeKeyColumn1 = join1.map(lambda line: line[1])
+flattenTuples1 = removeKeyColumn1.map(lambda line: (line[0][0],line[0][1],line[0][2],line[0][3],line[0][4],line[1]))
+changeOrder1 = flattenTuples1.map(lambda line: (line[0],line[1],line[2],line[3],line[5],line[4]))
+
+pairRDD3 = changeOrder1.map(lambda line: (line[2],(line[0],line[1],line[3],line[4],line[5])))
+stateCodes1 = sc.textFile("file:///usr/local/solePropCodes.csv").map(lambda line: line.split(",")).map(line: (line[0],line[1]))
+pairRDD4 = stateCodes1.map(lambda line: (line[0],line[1]))
+join2 = pairRDD3.leftOuterJoin(pairRDD4)
+removeKeyColumn2 = join2.map(lambda line: line[1])
+flattenTuples2 = removeKeyColumn2.map(lambda line: (line[0][0],line[0][1],line[0][2],line[0][3],line[0][4],line[1]))
+changeOrder2 = flattenTuples2.map(lambda line: (line[0],line[1],line[5],line[2],line[3],line[4]))
+
+pairRDD5 = changeOrder2.map(lambda line: (line[5],(line[0],line[1],line[2],line[3],line[4])))
+npiDeactCodes1 = sc.textFile("file:///usr/local/solePropCodes.csv").map(lambda line: line.split(",")).map(line: (line[0],line[1]))
+pairRDD6 = stateCodes1.map(lambda line: (line[0],line[1]))
+join3 = pairRDD5.leftOuterJoin(pairRDD6)
+removeKeyColumn3 = join3.map(lambda line: line[1])
+flattenTuples3 = removeKeyColumn2.map(lambda line: (line[0][0],line[0][1],line[0][2],line[0][3],line[0][4],line[1]))
+changeOrder3 = flattenTuples3.map(lambda line: (line[0],line[1],line[2],line[3],line[4],line[5]))
+
+
+
